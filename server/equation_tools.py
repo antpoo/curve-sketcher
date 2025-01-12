@@ -112,10 +112,12 @@ def _get_extrema(expression):
     expression = _convert_to_sympy(expression)
 
     # find the critical points
-    critical_points = solve(Derivative(expression, x), x)
+    critical_points = solve(Derivative(expression, x).doit(), x)
+
+
 
     # get the second derivative
-    second_derivative = Derivative(expression, x, x)
+    second_derivative = Derivative(expression, x, x).doit()
 
     local_mins = []
     local_maxs = []
@@ -127,7 +129,7 @@ def _get_extrema(expression):
         elif second_derivative.subs(x, point) < 0:
             local_maxs.append(str(point))
 
-    return [local_mins, local_maxs]
+    return [local_maxs, local_mins]
 
 # get points of inflection
 def _get_points_of_inflection(expression):
@@ -135,10 +137,11 @@ def _get_points_of_inflection(expression):
     expression = _convert_to_sympy(expression)
 
     # find the critical points
-    critical_points = solve(Derivative(expression, x, x), x)
+    critical_points = solve(Derivative(expression, x, x).doit(), x)
+    
 
     # get the second derivative
-    third_derivative = Derivative(expression, x, x, x)
+    third_derivative = Derivative(expression, x, x, x).doit()
 
     points_of_inflection = []
 
@@ -153,13 +156,15 @@ def _get_points_of_inflection(expression):
 
 # return everything in a json
 def get_function_information(expression):
-    return jsonify({
-        "firstDerivative": _compute_derivatives(expression)[1],
+    data = {"firstDerivative": _compute_derivatives(expression)[1],
         "secondDerivative": _compute_derivatives(expression)[2],
         "yIntercept": _get_y_intercept(expression),
         "roots": _get_roots(expression),
         "extrema": _get_extrema(expression),
         "inflectionPoints": _get_points_of_inflection(expression),
         "verticalAsymptotes": _get_vertical_asymptotes(expression),
-        "horizontalAsymptotes": _get_horizontal_asymptotes(expression)
-    })
+        "horizontalAsymptotes": _get_horizontal_asymptotes(expression)}
+
+
+    print(data)
+    return jsonify(data)

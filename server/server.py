@@ -13,7 +13,7 @@ def return_home():
         "message": "Welcome to the home page!"
     })
 
-# /api/derivatives
+# /api/equation
 @app.route("/api/equation", methods=["POST"])
 def compute_derivatives():
 
