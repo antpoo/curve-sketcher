@@ -1,6 +1,10 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+import { Scatter } from "react-chartjs-2";
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend);
 
 function Start() {
 
@@ -13,12 +17,14 @@ function Start() {
     const [secondDerivative, setSecondDerivative] = useState("");
     const [yIntercept, setYIntercept] = useState("");
     const [roots, setRoots] = useState([]);
-    const [extrema, setExtrema] = useState([]);
-    const [localMaxs, setLocalMaxs] = useState([]);
-    const [localMins, setLocalMins] = useState([]);
-    const [inflectionPoints, setInflectionPoints] = useState([]);
+    const [localMaxs, setLocalMaxs] = useState([[]]);
+    const [localMins, setLocalMins] = useState([[]]);
+    const [inflectionPoints, setInflectionPoints] = useState([[]]);
     const [verticalAsymptotes, setVerticalAsymptotes] = useState([]);
     const [horizontalAsymptotes, setHorizontalAsymptotes] = useState([]);
+    const [graphData, setGraphData] = useState([]);
+
+    const radius: number = 5;
 
 
     // getting all info from Flask server
@@ -37,7 +43,6 @@ function Start() {
             setSecondDerivative(data.secondDerivative);
             setYIntercept(data.yIntercept);
             setRoots(data.roots);
-            setExtrema(data.extrema);
             setLocalMaxs(data.extrema[0]);
             setLocalMins(data.extrema[1]);
             setInflectionPoints(data.inflectionPoints);
@@ -70,15 +75,15 @@ function Start() {
                     </tr>
                     <tr>
                         <th>Local Maxima:</th>
-                        <th>{localMaxs.length == 0 ? "None" : localMaxs.join(", ")}</th>
+                        <th>{localMaxs[0].length == 0 ? "None" : localMaxs[0].join(", ")}</th>
                     </tr>
                     <tr>
                         <th>Local Minima:</th>
-                        <th>{localMins.length == 0 ? "None" : localMins.join(", ")}</th>
+                        <th>{localMins[0].length == 0 ? "None" : localMins[0].join(", ")}</th>
                     </tr>
                     <tr>
                         <th>Points of Inflection:</th>
-                        <th>{inflectionPoints.length == 0 ? "None" : inflectionPoints.join(", ")}</th>
+                        <th>{inflectionPoints[0].length == 0 ? "None" : inflectionPoints[0].join(", ")}</th>
                     </tr>
                     <tr>
                         <th>Vertical Asymptotes:</th>
@@ -90,6 +95,8 @@ function Start() {
                     </tr>
                 </tbody>
             </table>
+
+            
         </div>
     );
 }

@@ -1,5 +1,7 @@
 from sympy import *
 from flask import jsonify
+from sqlalchemy.exc import IntegrityError
+
 
 x = symbols('x')
 
@@ -67,6 +69,8 @@ def _get_vertical_asymptotes(expression):
     # get undefined points
     singular_points = singularities(expression, x)
 
+
+
     # check left/right behaviour
     for point in singular_points:
 
@@ -119,17 +123,19 @@ def _get_extrema(expression):
     # get the second derivative
     second_derivative = Derivative(expression, x, x).doit()
 
-    local_mins = []
-    local_maxs = []
+    local_mins, ev_min = [], []
+    local_maxs, ev_max = [], []
 
     # check the second derivative at the critical points
     for point in critical_points:
         if second_derivative.subs(x, point) > 0:
             local_mins.append(str(point))
+            ev_min.append(str(expression.subs(x, point)))
         elif second_derivative.subs(x, point) < 0:
             local_maxs.append(str(point))
+            ev_max.append(str(expression.subs(x, point)))
 
-    return [local_maxs, local_mins]
+    return [[local_maxs, ev_max], [local_mins, ev_min]]
 
 # get points of inflection
 def _get_points_of_inflection(expression):
@@ -144,19 +150,22 @@ def _get_points_of_inflection(expression):
     third_derivative = Derivative(expression, x, x, x).doit()
 
     points_of_inflection = []
+    evaled = []
 
     # check the second derivative at the critical points
     for point in critical_points:
         if third_derivative.subs(x, point) != 0:
             points_of_inflection.append(str(point))
+            evaled.append(str(expression.subs(x, point)))
     
-    return points_of_inflection
+    return [points_of_inflection, evaled]
 
 
 
 # return everything in a json
 def get_function_information(expression):
-    data = {"firstDerivative": _compute_derivatives(expression)[1],
+    data = {"expr": str(_convert_to_sympy(expression)),
+        "firstDerivative": _compute_derivatives(expression)[1],
         "secondDerivative": _compute_derivatives(expression)[2],
         "yIntercept": _get_y_intercept(expression),
         "roots": _get_roots(expression),
@@ -166,5 +175,6 @@ def get_function_information(expression):
         "horizontalAsymptotes": _get_horizontal_asymptotes(expression)}
 
 
+
     print(data)
-    return jsonify(data)
+    return data
